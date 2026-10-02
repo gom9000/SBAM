@@ -1,107 +1,73 @@
 package net.gommagomma.sbam.physics;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * Un pin di un device: il punto dove device e linea si toccano.
+ * Interfaccia fisica tra un device ed uno o più fili collegati.
  *
- * Ogni pin fa riferimento a una Rail: è lei a dare il livello alto delle uscite CMOS
- * e le soglie degli ingressi CMOS. Pin dello stesso device possono avere rail diverse
- * (banchi di I/O, traslatori di livello).
+ * Il suo comportamento elettrico lo dichiara il device in react(),
+ * perché può dipendere da altri pin correlati dello stesso device.
  *
- * Può avere una parte d'uscita, una parte d'ingresso o entrambe (le porte del PIC).
- *
- * Tiene cose distinte:
- *  - declared:  cosa il device vuole mettere sulla linea (fase 1)
- *  - seen:      cosa il pin legge dalla linea con le SUE soglie (dopo la fase 2)
- *  - currentMA: corrente a regime (DC) che il pin eroga/assorbe come uscita (dopo la fase 2);
- *               non comprende il picco per caricare la capacità durante un fronte
- *
- * Un pin che dichiara Z è, di fatto, un ingresso.
+ * Si crea nel costruttore del device a cui appartiene, e si collega
+ * prima che la rete venga compilata: dopo, i collegamenti non cambiano più.
  */
 public class Pin
 {
+    private final Device device;
     private final String name;
-    private final Rail rail;
-    private final OutputSpec output;   // null se il pin non può pilotare
-    private final InputSpec input;     // null se il pin non legge
+    private final double capacitance;
+    private final List<Wire> wires = new ArrayList<>();
 
-    private Level declared = Level.Z;
-    private Level seen = Level.Z;
-    private double currentMA = 0.0;
+    /** Il nodo a cui appartiene, assegnato dalla compilazione della rete. */
+    Node node;
 
+    /** Indice del pin nella rete compilata, e gli array della rete da cui ricavare la corrente. */
+    int index = -1;
+    double[] conductances;   // somma delle conduttanze dichiarate dal pin [S]
+    double[] currents;       // somma delle correnti equivalenti dichiarate dal pin [A]
 
-    public Pin(String name, Rail rail, OutputSpec output, InputSpec input)
+    protected Pin(Device device, String name, double capacitance)
     {
+        this.device = device;
         this.name = name;
-        this.rail = rail;
-        this.output = output;
-        this.input = input;
-        if (output != null && output.type() == OutputType.TOTEM_POLE) {
-            this.declared = Level.L;   // un totem-pole pilota sempre qualcosa
-        }
+        this.capacitance = capacitance;
     }
 
-    public static Pin input(String name, Rail rail, InputSpec input)     { return new Pin(name, rail, null, input); }
-    public static Pin output(String name, Rail rail, OutputSpec output)  { return new Pin(name, rail, output, null); }
-
-    /** Fase 1: il device dichiara cosa vuole mettere sulla linea. */
-    public void drive(Level level)
+    /** Collega un filo a questo pin. */
+    public final Pin connect(Wire wire)
     {
-        if (level == Level.Z) {
-            release();
-            return;
-        }
-        if (level == Level.X) {
-            throw new IllegalArgumentException(name + ": un pin non può dichiarare X");
-        }
-        if (output == null) {
-            throw new IllegalStateException(name + ": è un ingresso, non può pilotare");
-        }
-        if (output.type() == OutputType.OPEN_DRAIN && level == Level.H) {
-            throw new IllegalStateException(name + ": open drain, può solo tirare a L o rilasciare");
-        }
-        this.declared = level;
+        if (node != null) throw new IllegalStateException(this + ": rete già compilata, i collegamenti non cambiano più");
+        wire.attach(this);
+        wires.add(wire);
+        return this;
     }
 
-    /** Fase 1: il device smette di pilotare (alta impedenza / ingresso). */
-    public void release()
+    public final String name()        { return name; }
+    public final Device device()      { return device; }
+    public final List<Wire> wires()   { return Collections.unmodifiableList(wires); }
+
+    /** Capacità del pin verso massa [F]. */
+    public final double capacitance() { return capacitance; }
+
+    /** Il nodo elettrico a cui il pin appartiene. */
+    public final Node node()
     {
-        if (output != null && output.type() == OutputType.TOTEM_POLE) {
-            throw new IllegalStateException(name + ": totem-pole, non può andare in alta impedenza");
-        }
-        this.declared = Level.Z;
+        if (node == null) throw new IllegalStateException(this + ": rete non ancora compilata");
+        return node;
     }
 
-    /** Come questo pin leggerebbe una certa tensione, con le sue soglie e la sua rail. */
-    public Level wouldRead(double volts)
+    /**
+     * Corrente che il pin manda nel suo nodo, alla fine dell'ultimo tick [A]:
+     * positiva se il pin eroga, negativa se assorbe.
+     */
+    public final double current()
     {
-        return input == null ? Level.Z : input.read(volts, rail.getVolts(), seen);
+        Node n = node();
+        return currents[index] - conductances[index] * n.volts();
     }
 
-    /** Chiamato solo dalla linea, alla fine della fase 2. */
-    void update(double lineVolts, double currentMA)
-    {
-        this.seen = wouldRead(lineVolts);
-        this.currentMA = currentMA;
-    }
-
-    public boolean isDriving()        { return declared != Level.Z; }
-    public boolean canRead()          { return input != null; }
-
-    public String getName()           { return name; }
-    public Rail getRail()             { return rail; }
-    public OutputSpec getOutput()     { return output; }
-    public InputSpec getInput()       { return input; }
-    public Level getDeclared()        { return declared; }
-    public Level getSeen()            { return seen; }
-    public double getCurrentMA()      { return currentMA; }
-
-    /** Capacità che il pin aggiunge alla linea. */
-    public double getCapacitancePF()
-    {
-        double c = 0;
-        if (output != null) c = Math.max(c, output.capacitancePF());
-        if (input != null) c = Math.max(c, input.capacitancePF());
-        return c;
-    }
+    @Override
+    public String toString() { return device.name() + "." + name; }
 }
