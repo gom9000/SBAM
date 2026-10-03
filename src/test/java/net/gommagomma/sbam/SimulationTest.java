@@ -9,7 +9,7 @@ import net.gommagomma.sbam.instrument.Trace;
 import net.gommagomma.sbam.instrument.digital.ContentionSentinel;
 import net.gommagomma.sbam.instrument.digital.DriveSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Wire;
 import org.junit.jupiter.api.Test;
 

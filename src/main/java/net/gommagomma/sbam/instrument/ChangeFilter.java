@@ -13,29 +13,22 @@ import java.util.Map;
  */
 final class ChangeFilter
 {
+    private final Columns columns;
     private final Map<String, Double> resolutions = new HashMap<>();
     private final List<long[]> last = new ArrayList<>();         // per colonna: l'ultimo valore registrato
-    private final List<Double> resolution = new ArrayList<>();   // per colonna analogica; 0 per le altre
 
-    ChangeFilter()
+    /** Per le colonne date: l'unità di una colonna analogica la dicono loro. */
+    ChangeFilter(Columns columns)
     {
+        this.columns = columns;
         resolutions.put("V", 0.01);
         resolutions.put("A", 1e-4);
     }
 
-    /** La risoluzione per un'unità: scarti più piccoli non sono cambiamenti. Prima di aggiungere colonne. */
+    /** La risoluzione per un'unità: scarti più piccoli non sono cambiamenti. */
     void resolution(String unit, double step)
     {
         resolutions.put(unit, step);
-    }
-
-    /** Aggiunge una colonna; per una analogica, con la risoluzione della sua unità. */
-    int column(String unit)
-    {
-        Double r = unit == null ? null : resolutions.get(unit);
-        resolution.add(r == null ? 0.0 : r);
-        last.add(null);
-        return last.size() - 1;
     }
 
     boolean logic(int column, char value)
@@ -50,17 +43,25 @@ final class ChangeFilter
 
     boolean analog(int column, double value)
     {
-        long[] l = last.get(column);
-        if (l != null && Math.abs(value - Double.longBitsToDouble(l[0])) < resolution.get(column)) return false;
+        long[] l = previous(column);
+        Double step = resolutions.get(columns.unit(column));
+        if (l != null && Math.abs(value - Double.longBitsToDouble(l[0])) < (step == null ? 0.0 : step)) return false;
         last.set(column, new long[] { Double.doubleToRawLongBits(value) });
         return true;
     }
 
     private boolean exact(int column, long a, long b, long c)
     {
-        long[] l = last.get(column);
+        long[] l = previous(column);
         if (l != null && l[0] == a && l[1] == b && l[2] == c) return false;
         last.set(column, new long[] { a, b, c });
         return true;
+    }
+
+    /** L'ultimo valore registrato della colonna; null se non ce n'è ancora uno. */
+    private long[] previous(int column)
+    {
+        while (last.size() <= column) last.add(null);
+        return last.get(column);
     }
 }

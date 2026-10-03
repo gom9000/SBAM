@@ -1,6 +1,6 @@
 package net.gommagomma.sbam.gui;
 
-import net.gommagomma.sbam.Simulation;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.ChangeTrace;
 import net.gommagomma.sbam.instrument.Severity;
 
@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -62,14 +63,13 @@ public final class SimulationWindow
     private JCheckBox follow;
     private Timer timer;
 
-    // la sessione: una simulazione costruita dal setup, con il suo runner e i suoi pannelli
-    private Simulation sim;
-    private Runner runner;
-    private Thread thread;
+    // la sessione in corso, e i pannelli che la mostrano
+    private Session session;
     private TimeView view;
     private LogicPanel logic;
     private ScopePanel scope;
     private EventPanel events;
+    private final List<CpuPanel> cpus = new ArrayList<>();
 
     public SimulationWindow(Setup setup)
     {
@@ -181,28 +181,25 @@ public final class SimulationWindow
 
     // ------------------------------------------------------------ la sessione
 
-    /** Costruisce il circuito da capo e i pannelli che lo mostrano. */
+    /** Costruisce il circuito da capo (una sessione nuova) e i pannelli che lo mostrano. */
     private void startSession()
     {
-        Probes probes = new Probes();
-        sim = setup.build(probes);
-        sim.record(probes.recorder());
-        sim.step();                              // il primo tick: le sonde si dichiarano e prendono il primo valore
-        frame.setTitle("SBAM - " + sim.name());
-        runner = new Runner(sim);
+        session = new Session(setup);
+        Runner runner = session.runner();
+        frame.setTitle("SBAM - " + session.simulation().name());
         runner.speed(((Speed) speed.getSelectedItem()).psPerSecond);
         runner.stopOn(((StopOn) stopOn.getSelectedItem()).severity);
 
-        ChangeTrace trace = probes.trace();
+        ChangeTrace trace = session.trace();
         List<Integer> logicColumns = new ArrayList<>(), analogColumns = new ArrayList<>();
         for (int c = 0; c < trace.columns().size(); c++) {
             if (trace.isAnalog(c)) analogColumns.add(c);
             else logicColumns.add(c);
         }
-        view = new TimeView(sim.engine().stepPs());
+        view = new TimeView(session.simulation().engine().stepPs());
         view.follow(follow.isSelected());
-        logic = new LogicPanel(runner, trace, view, logicColumns, probes.labels());
-        scope = new ScopePanel(runner, trace, view, analogColumns, probes.labels());
+        logic = new LogicPanel(runner, trace, view, logicColumns, session.labels());
+        scope = new ScopePanel(runner, trace, view, analogColumns, session.labels());
         events = new EventPanel(runner, view);
 
         JComponent traces;
@@ -215,50 +212,47 @@ public final class SimulationWindow
             split.setResizeWeight(0.55);
             traces = split;
         }
-        JSplitPane main = new JSplitPane(JSplitPane.VERTICAL_SPLIT, traces,
+        JSplitPane left = new JSplitPane(JSplitPane.VERTICAL_SPLIT, traces,
                 titled("Eventi  (un clic porta il cursore all'istante dell'evento)", events));
-        main.setResizeWeight(1.0);
-        main.setDividerLocation(860 - 230);
+        left.setResizeWeight(1.0);
+        left.setDividerLocation(860 - 230);
+
+        cpus.clear();
+        JComponent main = left;
+        if (!session.cpus().isEmpty()) {
+            JPanel column = new JPanel(new GridLayout(0, 1, 0, 4));
+            for (CpuWatch w : session.cpus()) {
+                CpuPanel p = new CpuPanel(runner, w, view);
+                cpus.add(p);
+                column.add(titled(w.label() + "  (clic: vai all'istante)", p));
+            }
+            JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, column);
+            split.setResizeWeight(1.0);
+            split.setDividerLocation(1280 - 360);
+            main = split;
+        }
         center.removeAll();
         center.add(main, BorderLayout.CENTER);
         center.revalidate();
         center.repaint();
-
-        thread = new Thread(runner, "sbam-" + sim.name());
-        thread.start();
-    }
-
-    /** Ferma il runner e chiude la simulazione (i suoi file vengono scritti). */
-    private void endSession()
-    {
-        runner.quit();
-        try {
-            thread.join(2_000);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-        synchronized (runner.lock()) {
-            sim.close();
-        }
     }
 
     private void refresh()
     {
-        long now;
-        synchronized (runner.lock()) {
-            now = sim.engine().nowPs();
-        }
+        long now = session.nowPs();
+        Runner runner = session.runner();
         boolean running = runner.running();
         playPause.setText(running ? "‖  Pausa" : "▶  Avvia");
         state.setText(running ? "IN CORSA" : "FERMA");
         state.setForeground(running ? RUNNING : STOPPED);
-        String speedText = running ? "   (" + Format.time(Math.round(runner.measuredSpeed())) + " al secondo)" : "";
-        time.setText("t = " + Format.time(now) + "   " + runner.status() + speedText);
+        String speedText = running ? "   (" + Quantities.time(Math.round(runner.measuredSpeed())) + " al secondo)" : "";
+        time.setText("t = " + Quantities.time(now) + "   " + runner.status() + speedText);
         cursor.setText(view.cursorPs() >= 0
-                ? "cursore a " + Format.time(view.cursorPs()) + "  (" + Format.time(Math.abs(now - view.cursorPs())) + " fa)"
+                ? "cursore a " + Quantities.time(view.cursorPs()) + "  (" + Quantities.time(Math.abs(now - view.cursorPs())) + " fa)"
                 : "rotella: zoom   trascina: sposta   clic: cursore   tasto destro: togli cursore");
         if (follow.isSelected() != view.following()) follow.setSelected(view.following());
         events.refresh();
+        for (CpuPanel p : cpus) p.refresh();
         logic.repaint();
         scope.repaint();
     }
@@ -331,15 +325,15 @@ public final class SimulationWindow
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            if (runner.running()) runner.pause();
-            else runner.start();
+            if (session.runner().running()) session.runner().pause();
+            else session.runner().start();
             refresh();
         }
     }
 
     private final class Step implements ActionListener
     {
-        @Override public void actionPerformed(ActionEvent e) { runner.step(); }
+        @Override public void actionPerformed(ActionEvent e) { session.runner().step(); }
     }
 
     private final class Reset implements ActionListener
@@ -347,7 +341,7 @@ public final class SimulationWindow
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            endSession();
+            session.close();
             follow.setSelected(true);                 // da capo: si riparte guardando il presente
             startSession();
             refresh();
@@ -360,7 +354,7 @@ public final class SimulationWindow
         public void actionPerformed(ActionEvent e)
         {
             try {
-                runner.advance(Format.parseTime(advance.getText()));
+                session.runner().advance(Quantities.parseTime(advance.getText()));
             } catch (IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(frame, ex.getMessage(), "Avanza", JOptionPane.WARNING_MESSAGE);
             }
@@ -372,7 +366,7 @@ public final class SimulationWindow
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            runner.speed(((Speed) speed.getSelectedItem()).psPerSecond);
+            session.runner().speed(((Speed) speed.getSelectedItem()).psPerSecond);
         }
     }
 
@@ -381,7 +375,7 @@ public final class SimulationWindow
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            runner.stopOn(((StopOn) stopOn.getSelectedItem()).severity);
+            session.runner().stopOn(((StopOn) stopOn.getSelectedItem()).severity);
         }
     }
 
@@ -395,11 +389,7 @@ public final class SimulationWindow
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            long now;
-            synchronized (runner.lock()) {
-                now = sim.engine().nowPs();
-            }
-            view.fit(now);
+            view.fit(session.nowPs());
         }
     }
 
@@ -423,7 +413,7 @@ public final class SimulationWindow
         public void windowClosed(WindowEvent e)
         {
             timer.stop();
-            endSession();
+            session.close();
         }
     }
 }

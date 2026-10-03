@@ -1,5 +1,6 @@
 package net.gommagomma.sbam.gui;
 
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.Simulation;
 import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.Severity;
@@ -63,7 +64,7 @@ public final class Runner implements Runnable
         synchronized (lock) {
             targetPs = sim.engine().nowPs() + ps;
         }
-        resume("avanza fino a " + Format.time(targetPs));
+        resume("avanza fino a " + Quantities.time(targetPs));
     }
 
     public void pause()
@@ -137,7 +138,7 @@ public final class Runner implements Runnable
         do {
             if (sim.engine().nowPs() >= targetPs) {
                 running = false;
-                status = "arrivata a " + Format.time(sim.engine().nowPs());
+                status = "arrivata a " + Quantities.time(sim.engine().nowPs());
                 return;
             }
             if (psPerSecond > 0 && ahead()) return;
@@ -156,7 +157,7 @@ public final class Runner implements Runnable
             Event e = events.get(i);
             if (!stopped && threshold != null && e.severity().compareTo(threshold) >= 0) {
                 running = false;
-                status = "fermata: " + e.severity().sound() + " " + e.source() + " a " + Format.time(e.timePs());
+                status = "fermata: " + e.severity().sound() + " " + e.source() + " a " + Quantities.time(e.timePs());
                 stopped = true;
             }
         }

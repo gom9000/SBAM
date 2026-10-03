@@ -2,7 +2,7 @@ package net.gommagomma.sbam.physics;
 
 import net.gommagomma.sbam.fixtures.Fixtures.Load;
 import net.gommagomma.sbam.fixtures.Fixtures.Toggler;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ class PerformanceTest
     void ferroSizedNetworkRunsFastEnough()
     {
         int lines = 100;
-        Engine engine = new Engine(1_000).printWarnings(false);
+        Engine engine = new Engine(1_000);
         Supply vcc = engine.add(new Supply("VCC", 5.0, 0.05));
         Wire rail = new Wire("+5V", 100e-9);
         vcc.out().connect(rail);

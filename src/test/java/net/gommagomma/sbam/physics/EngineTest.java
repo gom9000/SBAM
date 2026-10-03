@@ -4,8 +4,8 @@ import net.gommagomma.sbam.fixtures.Fixtures.Impure;
 import net.gommagomma.sbam.fixtures.Fixtures.Switch;
 import net.gommagomma.sbam.fixtures.Fixtures.Thief;
 import net.gommagomma.sbam.fixtures.Fixtures.Twin;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

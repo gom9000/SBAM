@@ -1,6 +1,6 @@
 package net.gommagomma.sbam.fixtures;
 
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 

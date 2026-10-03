@@ -38,9 +38,6 @@ public final class Engine
     private double toleranceVolts = 1e-6;
     private int maxIterations = 50;
     private boolean checkPurity = false;
-    private boolean printWarnings = true;
-    private final List<String> warnings = new ArrayList<>();   // i primi MAX_WARNINGS avvisi
-    private static final int MAX_WARNINGS = 20;
 
     private int lastIterations = 0;
     private double lastResidual = 0.0;
@@ -106,8 +103,6 @@ public final class Engine
      */
     public Engine checkPurity(boolean enabled)     { this.checkPurity = enabled; return this; }
 
-    /** Se stampare gli avvisi su System.err mentre accadono (default: sì). Restano comunque in warnings(). */
-    public Engine printWarnings(boolean enabled)   { this.printWarnings = enabled; return this; }
 
     // ------------------------------------------------------------ stato
 
@@ -123,8 +118,8 @@ public final class Engine
     public long unsettledTicks() { return unsettledTicks; }
     public long stepPs()         { return stepPs; }
 
-    /** Gli avvisi del motore (i primi venti). */
-    public List<String> warnings() { return Collections.unmodifiableList(warnings); }
+    /** Vero se l'ultimo tick si è assestato entro la tolleranza (lastResidual dice di quanto no). */
+    public boolean lastSettled() { return lastResidual <= toleranceVolts; }
     public List<Device> devices(){ return Collections.unmodifiableList(devices); }
 
     public List<Node> nodes()
@@ -309,11 +304,7 @@ public final class Engine
 
         lastIterations = round;
         lastResidual = delta;
-        if (delta > toleranceVolts) {
-            unsettledTicks++;
-            warn("tick " + tick.nowPs() + " ps: la rete non si è assestata in " + maxIterations
-                    + " tentativi (scarto " + delta + " V)");
-        }
+        if (delta > toleranceVolts) unsettledTicks++;           // lo racconta chi osserva il motore
 
         System.arraycopy(trial, 0, settled, 0, n);
         for (int i = 0; i < n; i++) floating[i] = sumG[i] == 0.0;
@@ -337,15 +328,6 @@ public final class Engine
         }
         collector.asking = d;
         first.replayInto(collector);
-    }
-
-    private void warn(String message)
-    {
-        if (warnings.size() < MAX_WARNINGS) {
-            String m = warnings.size() == MAX_WARNINGS - 1 ? message + " (altri avvisi soppressi)" : message;
-            warnings.add(m);
-            if (printWarnings) System.err.println("SBAM: " + m);
-        }
     }
 
     // ------------------------------------------------------------ tensioni viste dai device

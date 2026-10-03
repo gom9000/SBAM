@@ -3,7 +3,7 @@ package net.gommagomma.sbam.gui;
 import net.gommagomma.sbam.Simulation;
 import net.gommagomma.sbam.instrument.EventLog;
 import net.gommagomma.sbam.instrument.Severity;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Instrument;
 import net.gommagomma.sbam.physics.Tick;
@@ -94,20 +94,5 @@ class RunnerTest
         assertTrue(r.status().startsWith("fermata: KABOOM"), r.status());
         r.quit();
         t.join(2_000);
-    }
-
-    @Test
-    void timesAreWrittenAndReadWithTheirUnit()
-    {
-        assertEquals("250 ns", Format.time(250_000));
-        assertEquals("12,5 µs", Format.time(12_500_000));
-        assertEquals("1 ps", Format.time(1));
-        assertEquals(10_000_000, Format.parseTime("10us"));
-        assertEquals(1_500_000_000L, Format.parseTime("1,5 ms"));
-        assertEquals(250_000, Format.parseTime("250 ns"));
-        assertEquals("3A", Format.word(0x3A, 0, 0, 8));
-        assertEquals("XA", Format.word(0x0A, 0x10, 0, 8));
-        assertEquals("ZZ", Format.word(0, 0, 0xFF, 8));
-        assertEquals("0C00", Format.word(0xC00, 0, 0, 15));
     }
 }

@@ -1,10 +1,13 @@
 package net.gommagomma.sbam;
 
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
 import net.gommagomma.sbam.instrument.Recorder;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.instrument.VcdFile;
+import net.gommagomma.sbam.instrument.physics.FaultSentinel;
+import net.gommagomma.sbam.instrument.physics.SettlingSentinel;
 import net.gommagomma.sbam.physics.Device;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Instrument;
@@ -28,6 +31,7 @@ import java.util.regex.Pattern;
  *
  * Le registrazioni su file le crea la simulazione (vcd, record), che le chiude in close();
  * alla chiusura scrive anche il registro degli eventi (events.txt) e un riepilogo (run.txt).
+ * Due sentinelle ci sono sempre: quella dell'assestamento della rete e quella dei guasti dei device.
  *
  *     Simulation sim = new Simulation("contention", 10_000);
  *     ... sim.add(device) ...
@@ -67,6 +71,8 @@ public final class Simulation
         this.name = name;
         this.engine = new Engine(tickPs);
         this.dir = base.resolve(name);
+        engine.add(new SettlingSentinel(log));      // sempre: i limiti del simulatore stesso
+        engine.add(new FaultSentinel(log));         // e i guasti dei device
     }
 
     public String name()    { return name; }
@@ -160,13 +166,12 @@ public final class Simulation
         try {
             line(w, "simulazione", name);
             line(w, "eseguita", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            line(w, "tick", Event.formatTime(engine.stepPs()));
-            line(w, "tempo simulato", Event.formatTime(ps) + " (" + ps / engine.stepPs() + " tick)");
+            line(w, "tick", Quantities.time(engine.stepPs()));
+            line(w, "tempo simulato", Quantities.time(ps) + " (" + ps / engine.stepPs() + " tick)");
             line(w, "tempo reale", String.format(Locale.ITALIAN, "%.3f s", wall));
             line(w, "device", String.valueOf(engine.devices().size()));
             line(w, "tick non assestati", String.valueOf(engine.unsettledTicks()));
             line(w, "eventi", log.events().size() + eventCounts());
-            for (String warning : engine.warnings()) line(w, "avviso", warning);
         } finally {
             w.close();
         }

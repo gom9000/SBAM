@@ -39,13 +39,13 @@ public abstract class DigitalDevice extends Device
     // ------------------------------------------------------------ costruzione
 
     /**
-     * L'alimentazione del device: due pin semplici, VDD e GND, a cui si riferiscono tutti gli stadi.
-     * La capacità è quella di ciascun pin verso massa.
+     * L'alimentazione del device: due pin semplici, VDD e GND (gli stessi nomi per tutti i device, come vdd()
+     * e gnd()), a cui si riferiscono tutti gli stadi. La capacità è quella di ciascun pin verso massa.
      */
-    protected final Power power(String vddName, String gndName, double capacitance)
+    protected final Power power(double capacitance)
     {
         if (supply != null) throw new IllegalStateException(name() + ": l'alimentazione è già dichiarata");
-        supply = new Power(pin(vddName, capacitance), pin(gndName, capacitance));
+        supply = new Power(pin("VDD", capacitance), pin("GND", capacitance));
         return supply;
     }
 

@@ -1,15 +1,15 @@
 package net.gommagomma.sbam.instrument.physics;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gommagomma.sbam.instrument.ConditionSentinel;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Node;
 import net.gommagomma.sbam.physics.Pin;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sentinella di sovracorrente (strato fisico): segnala ogni pin la cui corrente supera
@@ -49,13 +49,13 @@ public final class CurrentSentinel extends ConditionSentinel<Pin>
     @Override
     protected String started(Pin pin, long forPs)
     {
-        return "corrente " + Event.formatCurrent((pin.current())) + " oltre il limite di " + Event.formatCurrent(limitAmps);
+        return "corrente " + Quantities.current((pin.current())) + " oltre il limite di " + Quantities.current(limitAmps);
     }
 
     @Override
     protected String ended(Pin pin, long forPs, double peak)
     {
-        return "corrente rientrata dopo " + Event.formatTime(forPs) + " (picco " + Event.formatCurrent(peak) + ")";
+        return "corrente rientrata dopo " + Quantities.time(forPs) + " (picco " + Quantities.current(peak) + ")";
     }
 
 }

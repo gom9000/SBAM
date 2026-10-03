@@ -11,9 +11,9 @@ import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
 import net.gommagomma.sbam.instrument.Recorder;
 import net.gommagomma.sbam.instrument.Severity;
-import net.gommagomma.sbam.parts.logic.Gate;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.logic.Gate;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 import org.junit.jupiter.api.Test;
@@ -142,7 +142,7 @@ class DigitalInstrumentTest
 
         assertEquals(2, log.count(Severity.BZZT), log.events().toString());
         assertEquals("HEAVY.Y", log.events().get(0).source());
-        assertTrue(log.events().get(0).message().contains("6,00 mA"), log.events().get(0).message());
+        assertTrue(log.events().get(0).message().contains("oltre i 6 mA"), log.events().get(0).message());
         assertEquals(300_000, log.events().get(1).timePs(), "rientra appena l'uscita rilascia");
     }
 

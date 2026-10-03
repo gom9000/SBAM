@@ -1,5 +1,6 @@
 package net.gommagomma.sbam.gui;
 
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.ChangeTrace;
 
 import java.awt.Color;
@@ -84,7 +85,7 @@ final class ScopePanel extends TimePanel
 
         for (double v = low; v <= high + step / 2; v += step) {       // i valori sopra la traccia, a sinistra
             int y = bottom - (int) Math.round((v - low) * scale);
-            String text = Format.analog(Math.abs(v) < step / 2 ? 0 : v, unit);
+            String text = Quantities.analog(Math.abs(v) < step / 2 ? 0 : v, unit);
             int tw = fm.stringWidth(text);
             g.setColor(LABEL_BOX);
             g.fillRect(2, y - fm.getAscent() / 2 - 2, tw + 6, fm.getAscent() + 3);

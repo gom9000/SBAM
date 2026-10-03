@@ -1,6 +1,5 @@
 package net.gommagomma.sbam.instrument;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
 public final class ChangeTrace implements Capture
 {
     private final Columns columns = new Columns();
-    private final ChangeFilter filter = new ChangeFilter();
+    private final ChangeFilter filter = new ChangeFilter(columns);
     private long[] times = new long[256];
     private int[] cols = new int[256];
     private long[] values = new long[256];      // logico: il carattere; analogico: i bit del double; parola: il valore
@@ -22,8 +21,6 @@ public final class ChangeTrace implements Capture
     private int[] previous = new int[256];      // il cambiamento precedente della stessa colonna; -1 se è il primo
     private int size = 0;
     private int[] latest = new int[0];          // per colonna: l'ultimo cambiamento; -1 se non ce n'è
-    private final List<String> units = new ArrayList<>();      // per colonna: l'unità, null se non è analogica
-    private final List<Integer> widths = new ArrayList<>();    // per colonna: i bit, 0 se è logica o analogica
 
     /** La risoluzione per un'unità ("V", "A"). Prima di avviare. */
     public ChangeTrace resolution(String unit, double step)
@@ -36,11 +33,11 @@ public final class ChangeTrace implements Capture
 
     public List<String> columns()   { return columns.names(); }
     /** L'unità della colonna se è analogica ("V", "A"); null altrimenti. */
-    public String unit(int column)  { return units.get(column); }
-    /** I bit della colonna se è una parola; 0 se è logica o analogica. */
-    public int width(int column)    { return widths.get(column); }
-    public boolean isAnalog(int column) { return units.get(column) != null; }
-    public boolean isWord(int column)   { return widths.get(column) > 0; }
+    public String unit(int column)  { return columns.unit(column); }
+    /** I bit della colonna: 1 se è logica, la larghezza se è una parola, 0 se è analogica. */
+    public int width(int column)    { return columns.width(column); }
+    public boolean isAnalog(int column) { return columns.isAnalog(column); }
+    public boolean isWord(int column)   { return columns.isWord(column); }
     public int size()               { return size; }
     public long time(int change)    { return times[change]; }
     public int column(int change)   { return cols[change]; }
@@ -93,9 +90,9 @@ public final class ChangeTrace implements Capture
 
     // ------------------------------------------------------------ Capture
 
-    @Override public void declareLogic(Signal signal)               { declare(signal, null, 0); }
-    @Override public void declareAnalog(Signal signal, String unit) { declare(signal, unit, 0); }
-    @Override public void declareWord(Signal signal, int width)     { declare(signal, null, width); }
+    @Override public void declareLogic(Signal signal)               { grow(columns.logic(signal)); }
+    @Override public void declareAnalog(Signal signal, String unit) { grow(columns.analog(signal, unit)); }
+    @Override public void declareWord(Signal signal, int width)     { grow(columns.word(signal, width)); }
     @Override public void begin() { }
     @Override public void end()   { }
 
@@ -122,14 +119,11 @@ public final class ChangeTrace implements Capture
 
     // ------------------------------------------------------------ interni
 
-    private void declare(Signal signal, String unit, int width)
+    /** Una colonna in più: non ha ancora cambiamenti. */
+    private void grow(int column)
     {
-        columns.add(signal);
-        filter.column(unit);
-        units.add(unit);
-        widths.add(width);
-        latest = Arrays.copyOf(latest, latest.length + 1);
-        latest[latest.length - 1] = -1;
+        latest = Arrays.copyOf(latest, column + 1);
+        latest[column] = -1;
     }
 
     private void add(long timePs, int column, long value, long unknownBits, long releasedBits)

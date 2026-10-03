@@ -1,24 +1,24 @@
 package net.gommagomma.sbam.examples;
 
-import net.gommagomma.sbam.gui.SimulationWindow;
-import net.gommagomma.sbam.gui.Setup;
-import net.gommagomma.sbam.gui.Probes;
-import net.gommagomma.sbam.instrument.physics.CurrentSignal;
-import net.gommagomma.sbam.logic.LogicFunction;
-import net.gommagomma.sbam.digital.stage.Families;
 import net.gommagomma.sbam.Simulation;
+import net.gommagomma.sbam.digital.stage.Families;
+import net.gommagomma.sbam.gui.Probes;
+import net.gommagomma.sbam.gui.Setup;
+import net.gommagomma.sbam.gui.SimulationWindow;
+import net.gommagomma.sbam.hardware.logic.Gate;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.instrument.ChangeTrace;
-import net.gommagomma.sbam.instrument.Event;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Recorder;
 import net.gommagomma.sbam.instrument.digital.ContentionSentinel;
 import net.gommagomma.sbam.instrument.digital.DriveSignal;
 import net.gommagomma.sbam.instrument.digital.LevelSignal;
 import net.gommagomma.sbam.instrument.digital.RatingSentinel;
 import net.gommagomma.sbam.instrument.physics.CurrentSentinel;
+import net.gommagomma.sbam.instrument.physics.CurrentSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
-import net.gommagomma.sbam.parts.logic.Gate;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.logic.LogicFunction;
 import net.gommagomma.sbam.physics.Wire;
 
 /**
@@ -118,7 +118,7 @@ public final class Contention
         System.out.println();
         System.out.println("sonda logica (solo i cambiamenti):");
         for (int i = 0; i < changes.size(); i++) {
-            System.out.printf("  [%12s] %-12s %c%n", Event.formatTime(changes.time(i)),
+            System.out.printf("  [%12s] %-12s %c%n", Quantities.time(changes.time(i)),
                     changes.columns().get(changes.column(i)), changes.logic(i));
         }
         System.out.println();

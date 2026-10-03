@@ -1,16 +1,16 @@
 package net.gommagomma.sbam.instrument.digital;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gommagomma.sbam.digital.DigitalPin;
 import net.gommagomma.sbam.digital.level.Drive;
 import net.gommagomma.sbam.instrument.ConditionSentinel;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sentinella di specifica: segnala ogni uscita digitale che eroga o assorbe più della corrente
@@ -47,14 +47,14 @@ public final class RatingSentinel extends ConditionSentinel<DigitalPin>
     @Override
     protected String started(DigitalPin p, long forPs)
     {
-        return "uscita " + p.driven() + " a " + Event.formatCurrent((p.current())) + " da " + Event.formatTime(forPs)
-                + ", oltre i " + Event.formatCurrent(p.output().ratedCurrent(p.driven())) + " garantiti: il livello non è più garantito";
+        return "uscita " + p.driven() + " a " + Quantities.current((p.current())) + " da " + Quantities.time(forPs)
+                + ", oltre i " + Quantities.current(p.output().ratedCurrent(p.driven())) + " garantiti: il livello non è più garantito";
     }
 
     @Override
     protected String ended(DigitalPin p, long forPs, double peak)
     {
-        return "rientrata nella specifica dopo " + Event.formatTime(forPs) + " (picco " + Event.formatCurrent(peak) + ")";
+        return "rientrata nella specifica dopo " + Quantities.time(forPs) + " (picco " + Quantities.current(peak) + ")";
     }
 
 }

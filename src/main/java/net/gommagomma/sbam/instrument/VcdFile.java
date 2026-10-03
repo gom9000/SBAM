@@ -23,10 +23,9 @@ import java.util.Map;
 public final class VcdFile implements Capture
 {
     private final Writer out;
-    private final ChangeFilter filter = new ChangeFilter();
     private final Columns columns = new Columns();
+    private final ChangeFilter filter = new ChangeFilter(columns);
     private final List<String> ids = new ArrayList<>();
-    private final List<Integer> widths = new ArrayList<>();
     private final Map<String, StringBuilder> scopes = new LinkedHashMap<>();
     private long lastTimePs = -1;
 
@@ -53,19 +52,19 @@ public final class VcdFile implements Capture
     @Override
     public void declareLogic(Signal signal)
     {
-        declare(signal, "wire", 1, null);
+        declare(signal, columns.logic(signal), "wire", 1);
     }
 
     @Override
     public void declareAnalog(Signal signal, String unit)
     {
-        declare(signal, "real", 64, unit);
+        declare(signal, columns.analog(signal, unit), "real", 64);
     }
 
     @Override
     public void declareWord(Signal signal, int width)
     {
-        declare(signal, "wire", width, null);
+        declare(signal, columns.word(signal, width), "wire", width);
     }
 
     @Override
@@ -105,7 +104,7 @@ public final class VcdFile implements Capture
         int c = columns.of(signal);
         if (!filter.word(c, value, unknown, released)) return;
         StringBuilder sb = new StringBuilder("b");
-        for (int i = widths.get(c) - 1; i >= 0; i--) {
+        for (int i = columns.width(c) - 1; i >= 0; i--) {
             long bit = 1L << i;
             sb.append((released & bit) != 0 ? 'z' : (unknown & bit) != 0 ? 'x' : (value & bit) != 0 ? '1' : '0');
         }
@@ -124,19 +123,17 @@ public final class VcdFile implements Capture
 
     // ------------------------------------------------------------ interni
 
-    private void declare(Signal signal, String type, int width, String unit)
+    /** La variabile VCD di una colonna già dichiarata: il tipo e i bit come li vuole il formato. */
+    private void declare(Signal signal, int c, String type, int bits)
     {
-        int c = columns.add(signal);
-        filter.column(unit);
         String id = id(c);
         ids.add(id);
-        widths.add(width);
         StringBuilder scope = scopes.get(signal.group());
         if (scope == null) {
             scope = new StringBuilder();
             scopes.put(signal.group(), scope);
         }
-        scope.append("$var ").append(type).append(' ').append(width).append(' ').append(id).append(' ')
+        scope.append("$var ").append(type).append(' ').append(bits).append(' ').append(id).append(' ')
              .append(signal.name().replace('.', '_')).append(" $end\n");
     }
 

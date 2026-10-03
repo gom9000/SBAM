@@ -8,9 +8,9 @@ import net.gommagomma.sbam.gui.Setup;
 import net.gommagomma.sbam.gui.Probes;
 import net.gommagomma.sbam.instrument.EventLog;
 import net.gommagomma.sbam.instrument.physics.CurrentSentinel;
-import net.gommagomma.sbam.parts.passive.Diode;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.passive.Diode;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 

@@ -11,12 +11,12 @@ import net.gommagomma.sbam.instrument.digital.RatingSentinel;
 import net.gommagomma.sbam.instrument.physics.CurrentSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
 import net.gommagomma.sbam.logic.Stimulus;
-import net.gommagomma.sbam.parts.display.LedBar;
-import net.gommagomma.sbam.parts.logic.Transceiver;
-import net.gommagomma.sbam.parts.passive.BussedNetwork;
-import net.gommagomma.sbam.parts.passive.IsolatedNetwork;
-import net.gommagomma.sbam.parts.power.Supply;
-import net.gommagomma.sbam.parts.switching.DipSwitch;
+import net.gommagomma.sbam.hardware.display.LedBar;
+import net.gommagomma.sbam.hardware.logic.Transceiver;
+import net.gommagomma.sbam.hardware.passive.BussedNetwork;
+import net.gommagomma.sbam.hardware.passive.IsolatedNetwork;
+import net.gommagomma.sbam.hardware.power.Supply;
+import net.gommagomma.sbam.hardware.switching.DipSwitch;
 import net.gommagomma.sbam.physics.Bus;
 import net.gommagomma.sbam.physics.Wire;
 

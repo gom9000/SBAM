@@ -1,19 +1,19 @@
 package net.gommagomma.sbam.examples;
 
-import net.gommagomma.sbam.gui.SimulationWindow;
-import net.gommagomma.sbam.gui.Setup;
-import net.gommagomma.sbam.gui.Probes;
+import java.util.Locale;
+
 import net.gommagomma.sbam.Simulation;
-import net.gommagomma.sbam.instrument.Event;
+import net.gommagomma.sbam.gui.Probes;
+import net.gommagomma.sbam.gui.Setup;
+import net.gommagomma.sbam.gui.SimulationWindow;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Recorder;
 import net.gommagomma.sbam.instrument.Trace;
 import net.gommagomma.sbam.instrument.physics.CurrentSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
 import net.gommagomma.sbam.physics.Wire;
-
-import java.util.Locale;
 
 /**
  * Carica di un condensatore: 5 V, 1 kohm, 1 nF (tau = 1 us), tick da 10 ns.
@@ -77,7 +77,7 @@ public final class RcCharge
             double s = t.time(i) * 1e-12;
             double expected = 5.0 * (1 - Math.exp(-s / 1e-6));
             System.out.printf(Locale.ITALIAN, "%10s  %7.4f V  %6.3f mA  %7.4f V%n",
-                    Event.formatTime(t.time(i)), t.value(0, i), t.value(1, i) * 1000, expected);
+                    Quantities.time(t.time(i)), t.value(0, i), t.value(1, i) * 1000, expected);
         }
         t.writeCsv(sim.file("rc.csv"));
         System.out.println("file: " + sim.dir().toAbsolutePath());

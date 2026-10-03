@@ -5,7 +5,7 @@ import net.gommagomma.sbam.fixtures.Recorders.Meddler;
 import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
 import net.gommagomma.sbam.instrument.Severity;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 import org.junit.jupiter.api.Test;

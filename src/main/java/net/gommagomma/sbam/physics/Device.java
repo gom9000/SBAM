@@ -44,6 +44,12 @@ public abstract class Device
     public final String name()     { return name; }
     public final List<Pin> pins()  { return Collections.unmodifiableList(pins); }
 
+    /**
+     * Se il device si è messo in uno stato di guasto (una CPU che legge un codice che non sa eseguire),
+     * che cosa è successo; null finché funziona. È stato del device: chi osserva lo porta nel registro.
+     */
+    public String fault()          { return null; }
+
     // ------------------------------------------------------------ costruzione
 
     /** Crea un pin semplice di questo device. Solo in costruzione. */

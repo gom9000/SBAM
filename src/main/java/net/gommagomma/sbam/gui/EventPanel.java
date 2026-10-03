@@ -1,5 +1,6 @@
 package net.gommagomma.sbam.gui;
 
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.Severity;
 
@@ -96,7 +97,7 @@ final class EventPanel extends JScrollPane
         {
             Event e = events.get(row);
             switch (column) {
-                case 0: return Format.time(e.timePs());
+                case 0: return Quantities.time(e.timePs());
                 case 1: return e.severity().sound();
                 case 2: return e.source();
                 case 3: return e.message();

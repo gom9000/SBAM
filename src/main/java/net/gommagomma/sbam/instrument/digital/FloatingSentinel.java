@@ -1,15 +1,15 @@
 package net.gommagomma.sbam.instrument.digital;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gommagomma.sbam.digital.DigitalPin;
 import net.gommagomma.sbam.instrument.ConditionSentinel;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sentinella di linea flottante: segnala ogni nodo letto da almeno un ingresso digitale
@@ -49,6 +49,6 @@ public final class FloatingSentinel extends ConditionSentinel<Node>
     @Override
     protected String ended(Node node, long forPs, double peak)
     {
-        return "di nuovo pilotato dopo " + Event.formatTime(forPs);
+        return "di nuovo pilotato dopo " + Quantities.time(forPs);
     }
 }

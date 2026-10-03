@@ -1,5 +1,6 @@
 package net.gommagomma.sbam.gui;
 
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.ChangeTrace;
 
 import javax.swing.JComponent;
@@ -179,12 +180,12 @@ abstract class TimePanel extends JComponent implements Scrollable
             g.setColor(DIM);
             g.drawLine(x, RULER - 6, x, RULER);
             g.setColor(TEXT);
-            g.drawString(t == 0 ? "0" : Format.time(t), x + 4, RULER - 8);
+            g.drawString(t == 0 ? "0" : Quantities.time(t), x + 4, RULER - 8);
         }
         g.setColor(NAME_AREA);
         g.fillRect(0, 0, NAMES, RULER);
         g.setColor(DIM);
-        g.drawString("una tacca = " + Format.time(step), 8, RULER - 8);
+        g.drawString("una tacca = " + Quantities.time(step), 8, RULER - 8);
     }
 
     private void marker(Graphics2D g, long ps, Color color, int h, boolean dashed)

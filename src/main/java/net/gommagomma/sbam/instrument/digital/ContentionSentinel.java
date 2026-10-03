@@ -1,16 +1,16 @@
 package net.gommagomma.sbam.instrument.digital;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gommagomma.sbam.digital.DigitalPin;
 import net.gommagomma.sbam.digital.level.Drive;
 import net.gommagomma.sbam.instrument.ConditionSentinel;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sentinella di scontro: segnala ogni nodo su cui un'uscita vuole H e un'altra vuole L,
@@ -84,6 +84,6 @@ public final class ContentionSentinel extends ConditionSentinel<ContentionSentin
     @Override
     protected String ended(Line line, long forPs, double peak)
     {
-        return "fine dello scontro dopo " + Event.formatTime(forPs) + " (picco " + Event.formatCurrent(peak) + ")";
+        return "fine dello scontro dopo " + Quantities.time(forPs) + " (picco " + Quantities.current(peak) + ")";
     }
 }

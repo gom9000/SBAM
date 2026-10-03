@@ -1,8 +1,8 @@
 package net.gommagomma.sbam.physics;
 
-import net.gommagomma.sbam.parts.passive.Diode;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.passive.Diode;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,7 +83,7 @@ class ConvergenceTest
     @Test
     void chainOfModerateResistorsConvergesEveryTick()
     {
-        Engine engine = new Engine(1_000).printWarnings(false);
+        Engine engine = new Engine(1_000);
         Wire end = chain(engine, 100);
         engine.runUntil(5_000_000);
         assertEquals(5.0 * 1_000 / (1_000 + 10 * 100 + 0.2), end.volts(), 1e-3);
@@ -99,7 +99,7 @@ class ConvergenceTest
     @Test
     void chainOfTinyResistorsStillReachesTheRightValue()
     {
-        Engine engine = new Engine(1_000).printWarnings(false);
+        Engine engine = new Engine(1_000);
         Wire end = chain(engine, 1);
         engine.runUntil(5_000_000);
         assertEquals(5.0 * 1_000 / (1_000 + 10 + 0.2), end.volts(), 1e-3);

@@ -12,7 +12,7 @@ import net.gommagomma.sbam.instrument.digital.LevelSignal;
 import net.gommagomma.sbam.instrument.digital.PortDriveSignal;
 import net.gommagomma.sbam.instrument.digital.PortReadSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Bus;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;

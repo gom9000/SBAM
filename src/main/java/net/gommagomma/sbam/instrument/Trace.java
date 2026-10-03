@@ -50,9 +50,9 @@ public final class Trace implements Capture
 
     // ------------------------------------------------------------ Capture
 
-    @Override public void declareLogic(Signal signal)               { columns.add(signal); }
-    @Override public void declareAnalog(Signal signal, String unit) { columns.add(signal); }
-    @Override public void declareWord(Signal signal, int width)     { columns.add(signal); }
+    @Override public void declareLogic(Signal signal)               { columns.logic(signal); }
+    @Override public void declareAnalog(Signal signal, String unit) { columns.analog(signal, unit); }
+    @Override public void declareWord(Signal signal, int width)     { columns.word(signal, width); }
 
     @Override
     public void begin()

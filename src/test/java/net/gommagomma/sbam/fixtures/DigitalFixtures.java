@@ -31,7 +31,7 @@ public final class DigitalFixtures
         public Source(String name, OutputStage stage)
         {
             super(name);
-            Power p = power("VDD", "GND", 1e-12);
+            Power p = power(1e-12);
             vdd = p.vdd();
             gnd = p.gnd();
             out = output("Y", p, stage);
@@ -67,7 +67,7 @@ public final class DigitalFixtures
         {
             super(name);
             this.delayPs = delayPs;
-            Power p = power("VDD", "GND", 1e-12);
+            Power p = power(1e-12);
             vdd = p.vdd();
             gnd = p.gnd();
             in = input("A", p, input);
@@ -92,7 +92,7 @@ public final class DigitalFixtures
         public Sink(String name, InputStage stage)
         {
             super(name);
-            Power p = power("VDD", "GND", 1e-12);
+            Power p = power(1e-12);
             vdd = p.vdd();
             gnd = p.gnd();
             in = input("A", p, stage);
@@ -113,7 +113,7 @@ public final class DigitalFixtures
         public WordSource(String name, Family family, int width)
         {
             super(name);
-            Power p = power("VDD", "GND", 1e-12);
+            Power p = power(1e-12);
             vdd = p.vdd();
             gnd = p.gnd();
             port = port("D", p, family, width);
@@ -143,7 +143,7 @@ public final class DigitalFixtures
         public WordSink(String name, InputStage stage, int width)
         {
             super(name);
-            Power p = power("VDD", "GND", 1e-12);
+            Power p = power(1e-12);
             vdd = p.vdd();
             gnd = p.gnd();
             port = port("D", p, stage, OutputStage.NONE, width);

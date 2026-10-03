@@ -6,7 +6,7 @@ import net.gommagomma.sbam.fixtures.DigitalFixtures.Follower;
 import net.gommagomma.sbam.fixtures.DigitalFixtures.Source;
 import net.gommagomma.sbam.fixtures.Ground;
 import net.gommagomma.sbam.fixtures.Recorders.DriveChanges;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 import org.junit.jupiter.api.Test;

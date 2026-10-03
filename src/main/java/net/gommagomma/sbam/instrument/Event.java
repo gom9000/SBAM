@@ -1,7 +1,5 @@
 package net.gommagomma.sbam.instrument;
 
-import java.util.Locale;
-
 /**
  * Un evento del registro.
  *
@@ -34,20 +32,6 @@ public final class Event
     @Override
     public String toString()
     {
-        return String.format("[%14s] %-8s %s: %s", formatTime(timePs), severity.sound(), source, message);
-    }
-
-    /** "12,34 mA" (il valore assoluto) */
-    public static String formatCurrent(double amps)
-    {
-        return String.format(Locale.ITALIAN, "%.2f mA", Math.abs(amps) * 1000.0);
-    }
-
-    /** "1 234,5 ns" */
-    public static String formatTime(long ps)
-    {
-        String s = String.format(Locale.ITALIAN, "%,.1f", ps / 1000.0).replace('.', ' ');
-        if (s.endsWith(",0")) s = s.substring(0, s.length() - 2);
-        return s + " ns";
+        return String.format("[%14s] %-8s %s: %s", Quantities.time(timePs), severity.sound(), source, message);
     }
 }

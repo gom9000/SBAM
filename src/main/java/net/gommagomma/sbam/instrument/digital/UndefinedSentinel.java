@@ -1,16 +1,16 @@
 package net.gommagomma.sbam.instrument.digital;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.gommagomma.sbam.digital.DigitalPin;
 import net.gommagomma.sbam.digital.level.Level;
 import net.gommagomma.sbam.instrument.ConditionSentinel;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Sentinella di livello indefinito: segnala ogni ingresso digitale che legge X più a lungo di un tempo dato,
@@ -41,12 +41,12 @@ public final class UndefinedSentinel extends ConditionSentinel<DigitalPin>
     @Override
     protected String started(DigitalPin p, long forPs)
     {
-        return String.format("legge X da %s (%.2f V)", Event.formatTime(forPs), p.node().volts());
+        return String.format("legge X da %s (%.2f V)", Quantities.time(forPs), p.node().volts());
     }
 
     @Override
     protected String ended(DigitalPin p, long forPs, double peak)
     {
-        return "di nuovo " + p.level() + " dopo " + Event.formatTime(forPs) + " in X";
+        return "di nuovo " + p.level() + " dopo " + Quantities.time(forPs) + " in X";
     }
 }

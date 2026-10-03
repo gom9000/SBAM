@@ -2,8 +2,8 @@ package net.gommagomma.sbam.instrument;
 
 import net.gommagomma.sbam.instrument.physics.CurrentSignal;
 import net.gommagomma.sbam.instrument.physics.VoltageSignal;
-import net.gommagomma.sbam.parts.passive.Resistor;
-import net.gommagomma.sbam.parts.power.Supply;
+import net.gommagomma.sbam.hardware.passive.Resistor;
+import net.gommagomma.sbam.hardware.power.Supply;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Wire;
 import org.junit.jupiter.api.Test;

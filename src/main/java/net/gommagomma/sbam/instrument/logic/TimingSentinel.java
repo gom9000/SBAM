@@ -1,9 +1,13 @@
 package net.gommagomma.sbam.instrument.logic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.gommagomma.sbam.digital.DigitalPin;
 import net.gommagomma.sbam.digital.level.Level;
-import net.gommagomma.sbam.instrument.Event;
 import net.gommagomma.sbam.instrument.EventLog;
+import net.gommagomma.sbam.instrument.Quantities;
 import net.gommagomma.sbam.instrument.Severity;
 import net.gommagomma.sbam.logic.Sampling;
 import net.gommagomma.sbam.logic.SynchronousDevice;
@@ -11,10 +15,6 @@ import net.gommagomma.sbam.physics.Device;
 import net.gommagomma.sbam.physics.Engine;
 import net.gommagomma.sbam.physics.Instrument;
 import net.gommagomma.sbam.physics.Tick;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Sentinella di setup e hold: per ogni campionamento dichiarato dai device sincroni, verifica che
@@ -54,16 +54,16 @@ public final class TimingSentinel implements Instrument
         if (d.level() == Level.X) {
             log.add(edgePs, Severity.BOING, d.toString(), "X sul fronte di " + s.clock() + " (" + s + ")");
         } else if (stable < s.setupPs()) {
-            log.add(edgePs, Severity.BOING, d.toString(), "setup violato: stabile da " + Event.formatTime(stable)
-                    + " sul fronte di " + s.clock() + ", ne servono " + Event.formatTime(s.setupPs()) + " (" + s + ")");
+            log.add(edgePs, Severity.BOING, d.toString(), "setup violato: stabile da " + Quantities.time(stable)
+                    + " sul fronte di " + s.clock() + ", ne servono " + Quantities.time(s.setupPs()) + " (" + s + ")");
         }
     }
 
     private void checkHold(Sampling s, DigitalPin d, long t, long edgePs)
     {
         if (d.stableSincePs() == t) {
-            log.add(t, Severity.BOING, d.toString(), "hold violato: cambiato " + Event.formatTime(t - edgePs)
-                    + " dopo il fronte di " + s.clock() + ", ne servono " + Event.formatTime(s.holdPs()) + " (" + s + ")");
+            log.add(t, Severity.BOING, d.toString(), "hold violato: cambiato " + Quantities.time(t - edgePs)
+                    + " dopo il fronte di " + s.clock() + ", ne servono " + Quantities.time(s.holdPs()) + " (" + s + ")");
         }
     }
 
